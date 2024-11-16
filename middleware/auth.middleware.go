@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"net/http"
+	"order_inventory_management/helpers"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -29,13 +31,11 @@ func AuthMiddleware(roles []string) gin.HandlerFunc {
 			return
 		}
 
-		// if permission != "" {
-		// 	if !helpers.SliceContains(claims.Permissions, permission) {
-		// 		ctx.JSON(http.StatusUnauthorized, gin.H{"status": false, "message": "Permission is not allowed"})
-		// 		ctx.Abort()
-		// 		return
-		// 	}
-		// }
+		if !helpers.SliceContains(roles, claims.Role) {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"status": false, "message": "Permission is not allowed"})
+			ctx.Abort()
+			return
+		}
 
 		ctx.Set("user_id", claims.ID)
 		ctx.Set("email", claims.Email)

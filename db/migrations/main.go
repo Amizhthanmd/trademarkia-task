@@ -76,6 +76,33 @@ func MigrateDatabase(db *gorm.DB) *gormigrate.Gormigrate {
 				return d.Migrator().DropTable(&models.User{})
 			},
 		},
+		{
+			ID: "added_productss_table",
+			Migrate: func(d *gorm.DB) error {
+				return d.AutoMigrate(&models.Product{})
+			},
+			Rollback: func(d *gorm.DB) error {
+				return d.Migrator().DropTable(&models.Product{})
+			},
+		},
+		{
+			ID: "added_inventory_table",
+			Migrate: func(d *gorm.DB) error {
+				return d.AutoMigrate(&models.Inventory{})
+			},
+			Rollback: func(d *gorm.DB) error {
+				return d.Migrator().DropTable(&models.Inventory{})
+			},
+		},
+		{
+			ID: "added_orders_table",
+			Migrate: func(d *gorm.DB) error {
+				return d.AutoMigrate(&models.Order{})
+			},
+			Rollback: func(d *gorm.DB) error {
+				return d.Migrator().DropTable(&models.Order{})
+			},
+		},
 	})
 
 	if err := migrate.Migrate(); err != nil {

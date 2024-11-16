@@ -78,7 +78,6 @@ func InventoryRoutes(v1 *gin.RouterGroup, controller *controllers.Controller) {
 		inventoryRoute.POST("", middleware.AuthMiddleware(admin), controller.AddInventory)
 		inventoryRoute.PUT(":id", middleware.AuthMiddleware(admin), controller.UpdateInventory)
 		inventoryRoute.DELETE(":id", middleware.AuthMiddleware(admin), controller.DeleteInventory)
-		inventoryRoute.GET(":id", middleware.AuthMiddleware(admin), controller.GetInventory)
 		inventoryRoute.GET("", middleware.AuthMiddleware(admin), controller.ListInventory)
 	}
 }

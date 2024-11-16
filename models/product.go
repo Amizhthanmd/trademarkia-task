@@ -8,7 +8,7 @@ type Product struct {
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 
-	Inventory   Inventory `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Inventory   Inventory `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	InventoryID string    `json:"inventory_id"`
 
 	Orders    []Order   `gorm:"many2many:order_products;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`

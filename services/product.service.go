@@ -27,12 +27,17 @@ func (p *ProductService) CreateProduct(data *models.Product) error {
 
 func (p *ProductService) GetProductById(data *models.Product, id string) error {
 	p.logger.Info("Get product by id")
-	return p.DB.Where("id = ?", id).First(data).Error
+	return p.DB.Preload("Inventory").First(&data, "id = ?", id).Error
 }
 
 func (p *ProductService) ListProducts(data *[]models.Product, limit, offset int) error {
 	p.logger.Info("List products")
 	return p.DB.Limit(limit).Offset(offset).Find(data).Error
+}
+
+func (p *ProductService) SearchProducts(data *[]models.Product, search string) error {
+	p.logger.Info("Search products")
+	return p.DB.Where("name ILIKE ?", "%"+search+"%").Find(&data).Error
 }
 
 func (p *ProductService) UpdateProduct(data *models.Product, id string) error {

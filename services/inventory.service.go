@@ -40,6 +40,10 @@ func (i *InventoryService) UpdateInventory(data *models.Inventory, id string) er
 	return i.DB.Where("id = ?", id).Updates(&data).Error
 }
 
+func (i *InventoryService) UpdateInventoryQty(data int, id string) error {
+	return i.DB.Model(&models.Inventory{}).Where("id = ?", id).Update("quantity", data).Error
+}
+
 func (i *InventoryService) DeleteInventory(id string) error {
 	i.logger.Info("Delete inventory")
 	return i.DB.Where("id = ?", id).Delete(&models.Inventory{}).Error

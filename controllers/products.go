@@ -41,6 +41,7 @@ func (c *Controller) GetProduct(ctx *gin.Context) {
 func (c *Controller) ListProduct(ctx *gin.Context) {
 	limit := ctx.DefaultQuery("limit", "10")
 	offset := ctx.DefaultQuery("offset", "0")
+	searchName := ctx.Query("name")
 
 	limitInt, err := strconv.Atoi(limit)
 	if err != nil {
@@ -56,12 +57,23 @@ func (c *Controller) ListProduct(ctx *gin.Context) {
 	}
 
 	var products []models.Product
-	if err := c.productService.ListProducts(&products, limitInt, offsetInt); err != nil {
-		c.logger.Error("Failed to list products :", zap.Error(err))
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": false, "message": "Failed to list products"})
+	if searchName != "" {
+		if err := c.productService.SearchProducts(&products, searchName); err != nil {
+			c.logger.Error("Failed to search products :", zap.Error(err))
+			ctx.JSON(http.StatusInternalServerError, gin.H{"status": false, "message": "Failed to search products"})
+			return
+		}
+	} else {
+		if err := c.productService.ListProducts(&products, limitInt, offsetInt); err != nil {
+			c.logger.Error("Failed to list products :", zap.Error(err))
+			ctx.JSON(http.StatusInternalServerError, gin.H{"status": false, "message": "Failed to list products"})
+			return
+		}
+	}
+	if len(products) == 0 {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": false, "message": "No products found"})
 		return
 	}
-
 	ctx.JSON(http.StatusOK, gin.H{"status": true, "message": "Products listed successfully", "data": products})
 }
 

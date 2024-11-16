@@ -32,8 +32,10 @@ func StartRouter(controller *controllers.Controller, PORT string, GIN_MODE strin
 	{
 		v1.POST("signup", controller.SignUp)
 		v1.POST("login", controller.Login)
+		UserRoutes(v1, controller)
 		ProductRoutes(v1, controller)
 		InventoryRoutes(v1, controller)
+		OrderRoutes(v1, controller)
 	}
 
 	if err := router.Run(PORT); err != nil {

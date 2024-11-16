@@ -23,9 +23,9 @@ type LoginUser struct {
 
 type Order struct {
 	ID          string  `json:"id,omitempty" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
-	OrderNumber string  `json:"order_number"`
 	TotalAmount float64 `json:"total_amount"`
 	Status      string  `json:"status"`
+	Quantity    int     `json:"quantity"`
 
 	UserID string `json:"user_id,omitempty"`
 	User   User   `json:"user,omitempty" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
@@ -34,4 +34,9 @@ type Order struct {
 	Products  []Product `gorm:"many2many:order_products;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	CreatedAt time.Time `json:"created_at,omitempty" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updated_at,omitempty" gorm:"autoUpdateTime"`
+}
+
+type OrderDetails struct {
+	ProductID string `json:"product_id"`
+	Quantity  int    `json:"quantity"`
 }

@@ -28,3 +28,8 @@ func (u *UserService) GetUserByEmail(email string, data *models.User) error {
 	u.logger.Info("Get user by email")
 	return u.DB.Where("email = ?", email).First(&data).Error
 }
+
+func (u *UserService) PlaceOrder(data *models.Order) error {
+	u.logger.Info("Place order")
+	return u.DB.Create(&data).Error
+}

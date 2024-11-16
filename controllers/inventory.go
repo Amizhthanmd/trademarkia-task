@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -16,12 +17,23 @@ func (c *Controller) AddInventory(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"status": false, "message": "Invalid request payload"})
 		return
 	}
+	inventory.ID = uuid.New().String()
 
 	if err := c.inventoryService.CreateInventory(&inventory); err != nil {
 		c.logger.Error("Failed to create inventory :", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, gin.H{"status": false, "message": "Failed to create inventory"})
 		return
 	}
+	product := &models.Product{
+		InventoryID: inventory.ID,
+	}
+
+	if err := c.productService.UpdateProduct(product, inventory.ProductID); err != nil {
+		c.logger.Error("Failed to update product :", zap.Error(err))
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": false, "message": "Failed to create product"})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{"status": true, "message": "Inventory created successfully"})
 }
 

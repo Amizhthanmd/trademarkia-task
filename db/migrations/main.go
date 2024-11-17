@@ -150,7 +150,7 @@ func MigrateDatabase(db *gorm.DB) *gormigrate.Gormigrate {
 }
 
 func createTriggerFunction(db *gorm.DB) error {
-	triggerFunctionQuery := `
+	orderTriggerFunctionQuery := `
     CREATE OR REPLACE FUNCTION update_inventory_after_order_placed()
     RETURNS TRIGGER AS $$
     BEGIN
@@ -166,21 +166,52 @@ func createTriggerFunction(db *gorm.DB) error {
     END;
     $$ LANGUAGE plpgsql;`
 
-	if err := db.Exec(triggerFunctionQuery).Error; err != nil {
-		return fmt.Errorf("failed to create trigger function: %v", err)
+	inventoryTriggerFunctionQuery := `
+	CREATE OR REPLACE FUNCTION adjust_price_based_on_inventory()
+	RETURNS TRIGGER AS $$
+	BEGIN
+		IF NEW.quantity <= 5 THEN
+			UPDATE products
+			SET price = price * 1.10
+			WHERE id = NEW.product_id;
+		ELSIF NEW.quantity > 5 THEN
+			UPDATE products
+			SET price = price * 0.90
+			WHERE id = NEW.product_id;
+		END IF;
+
+		RETURN NEW;
+	END;
+	$$ LANGUAGE plpgsql;	
+	`
+
+	if err := db.Exec(inventoryTriggerFunctionQuery).Error; err != nil {
+		return fmt.Errorf("failed to create inventory trigger function: %v", err)
+	}
+	if err := db.Exec(orderTriggerFunctionQuery).Error; err != nil {
+		return fmt.Errorf("failed to create order trigger function: %v", err)
 	}
 	return nil
 }
 
 func createTrigger(db *gorm.DB) error {
-	triggerQuery := `
+	ordersTriggerQuery := `
     CREATE TRIGGER after_order_placed
     AFTER INSERT ON orders
     FOR EACH ROW
     EXECUTE FUNCTION update_inventory_after_order_placed();`
 
-	if err := db.Exec(triggerQuery).Error; err != nil {
-		return fmt.Errorf("failed to create trigger: %v", err)
+	inventoryTriggerQuery := `
+	CREATE TRIGGER update_product_price
+	AFTER UPDATE ON inventories
+	FOR EACH ROW
+	EXECUTE FUNCTION adjust_price_based_on_inventory();`
+
+	if err := db.Exec(ordersTriggerQuery).Error; err != nil {
+		return fmt.Errorf("failed to create order trigger: %v", err)
+	}
+	if err := db.Exec(inventoryTriggerQuery).Error; err != nil {
+		return fmt.Errorf("failed to create inventory trigger: %v", err)
 	}
 	return nil
 }

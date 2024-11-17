@@ -33,3 +33,13 @@ func (u *UserService) PlaceOrder(data *models.Order) error {
 	u.logger.Info("Place order")
 	return u.DB.Create(&data).Error
 }
+
+func (u *UserService) GetOrderById(data *[]models.Order, id string) error {
+	u.logger.Info("Get order by id")
+	return u.DB.Find(&data, "user_id = ?", id).Error
+}
+
+func (u *UserService) GetOrders(data *[]models.Order, limit, offset int) error {
+	u.logger.Info("List orders")
+	return u.DB.Limit(limit).Offset(offset).Find(&data).Error
+}

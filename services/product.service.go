@@ -32,12 +32,12 @@ func (p *ProductService) GetProductById(data *models.Product, id string) error {
 
 func (p *ProductService) ListProducts(data *[]models.Product, limit, offset int) error {
 	p.logger.Info("List products")
-	return p.DB.Limit(limit).Offset(offset).Find(data).Error
+	return p.DB.Preload("Inventory").Limit(limit).Offset(offset).Find(data).Error
 }
 
 func (p *ProductService) SearchProducts(data *[]models.Product, search string) error {
 	p.logger.Info("Search products")
-	return p.DB.Where("name ILIKE ?", "%"+search+"%").Find(&data).Error
+	return p.DB.Preload("Inventory").Where("name ILIKE ?", "%"+search+"%").Find(&data).Error
 }
 
 func (p *ProductService) UpdateProduct(data *models.Product, id string) error {

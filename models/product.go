@@ -9,7 +9,7 @@ type Product struct {
 	Price       float64 `json:"price"`
 
 	Inventory   Inventory `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	InventoryID string    `json:"inventory_id"`
+	InventoryID string    `json:"inventory_id,omitempty"`
 
 	Orders    []Order   `gorm:"many2many:order_products;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	CreatedAt time.Time `json:"created_at,omitempty" gorm:"autoCreateTime"`

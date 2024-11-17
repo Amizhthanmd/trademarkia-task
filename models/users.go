@@ -27,11 +27,13 @@ type Order struct {
 	Status      string  `json:"status"`
 	Quantity    int     `json:"quantity"`
 
-	UserID string `json:"user_id,omitempty"`
+	UserID string `json:"user_id,omitempty" gorm:"type:uuid"`
 	User   User   `json:"user,omitempty" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 
 	// Many-to-Many (Products)
 	Products  []Product `gorm:"many2many:order_products;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	ProductID string    `json:"product_id" gorm:"type:uuid"`
+
 	CreatedAt time.Time `json:"created_at,omitempty" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updated_at,omitempty" gorm:"autoUpdateTime"`
 }

@@ -28,14 +28,14 @@ func StartRouter(controller *controllers.Controller, PORT string, GIN_MODE strin
 		c.Abort()
 	})
 
-	v1 := router.Group("/api/v1")
+	v1 := router.Group("api/v1")
 	{
 		v1.POST("signup", controller.SignUp)
 		v1.POST("login", controller.Login)
-		UserRoutes(v1, controller)
-		ProductRoutes(v1, controller)
-		InventoryRoutes(v1, controller)
-		OrderRoutes(v1, controller)
+		UserRoutes(v1, controller)      // User routes
+		ProductRoutes(v1, controller)   // Products routes
+		InventoryRoutes(v1, controller) // Inventory routes
+		OrderRoutes(v1, controller)     // Orders routes
 	}
 
 	if err := router.Run(PORT); err != nil {
@@ -54,11 +54,9 @@ func UserRoutes(v1 *gin.RouterGroup, controller *controllers.Controller) {
 func ProductRoutes(v1 *gin.RouterGroup, controller *controllers.Controller) {
 	productRoute := v1.Group("product")
 	{
-		// User and Admin routes
 		productRoute.GET(":id", middleware.AuthMiddleware(admin_user), controller.GetProduct)
 		productRoute.GET("", middleware.AuthMiddleware(admin_user), controller.ListProduct)
 
-		// Admin only routes
 		productRoute.POST("", middleware.AuthMiddleware(admin), controller.AddProduct)
 		productRoute.PUT(":id", middleware.AuthMiddleware(admin), controller.UpdateProduct)
 		productRoute.DELETE(":id", middleware.AuthMiddleware(admin), controller.DeleteProduct)

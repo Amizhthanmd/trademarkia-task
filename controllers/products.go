@@ -92,7 +92,7 @@ func (c *Controller) UpdateProduct(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"status": true, "message": "Product updated successfully", "data": product})
+	ctx.JSON(http.StatusOK, gin.H{"status": true, "message": "Product updated successfully"})
 }
 
 func (c *Controller) DeleteProduct(ctx *gin.Context) {

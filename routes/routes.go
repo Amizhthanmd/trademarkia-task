@@ -44,7 +44,7 @@ func StartRouter(controller *controllers.Controller, PORT string, GIN_MODE strin
 }
 
 func UserRoutes(v1 *gin.RouterGroup, controller *controllers.Controller) {
-	userRoute := v1.Group("user")
+	userRoute := v1.Group("users")
 	{
 		userRoute.GET(":id", middleware.AuthMiddleware(admin), controller.GetUser)
 		userRoute.GET("", middleware.AuthMiddleware(admin), controller.ListUser)
@@ -52,7 +52,7 @@ func UserRoutes(v1 *gin.RouterGroup, controller *controllers.Controller) {
 }
 
 func ProductRoutes(v1 *gin.RouterGroup, controller *controllers.Controller) {
-	productRoute := v1.Group("product")
+	productRoute := v1.Group("products")
 	{
 		productRoute.GET(":id", middleware.AuthMiddleware(admin_user), controller.GetProduct)
 		productRoute.GET("", middleware.AuthMiddleware(admin_user), controller.ListProduct)
@@ -64,10 +64,10 @@ func ProductRoutes(v1 *gin.RouterGroup, controller *controllers.Controller) {
 }
 
 func OrderRoutes(v1 *gin.RouterGroup, controller *controllers.Controller) {
-	orderRoute := v1.Group("order")
+	orderRoute := v1.Group("orders")
 	{
 		orderRoute.POST("", middleware.AuthMiddleware(admin_user), controller.PlaceOrder)
-		orderRoute.GET(":id", middleware.AuthMiddleware(admin_user), controller.GetOrder)
+		orderRoute.GET(":user_id", middleware.AuthMiddleware(admin_user), controller.GetOrder)
 		orderRoute.GET("", middleware.AuthMiddleware(admin_user), controller.ListOrder)
 	}
 }

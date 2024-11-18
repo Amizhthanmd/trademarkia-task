@@ -48,3 +48,11 @@ func (i *InventoryService) DeleteInventory(id string) error {
 	i.logger.Info("Delete inventory")
 	return i.DB.Where("id = ?", id).Delete(&models.Inventory{}).Error
 }
+
+func (i *InventoryService) GetInventoryStats(data *[]models.Product, query *gorm.DB) error {
+	i.logger.Info("Get inventory stats")
+	return query.
+		Joins("JOIN inventories ON products.id = inventories.product_id").
+		Preload("Inventory").
+		Find(&data).Error
+}

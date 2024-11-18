@@ -32,10 +32,11 @@ func StartRouter(controller *controllers.Controller, PORT string, GIN_MODE strin
 	{
 		v1.POST("signup", controller.SignUp)
 		v1.POST("login", controller.Login)
-		UserRoutes(v1, controller)      // User routes
-		ProductRoutes(v1, controller)   // Products routes
-		InventoryRoutes(v1, controller) // Inventory routes
-		OrderRoutes(v1, controller)     // Orders routes
+		UserRoutes(v1, controller)       // User routes
+		ProductRoutes(v1, controller)    // Products routes
+		InventoryRoutes(v1, controller)  // Inventory routes
+		OrderRoutes(v1, controller)      // Orders routes
+		StatisticsRoutes(v1, controller) // Statistics routes
 	}
 
 	if err := router.Run(PORT); err != nil {
@@ -79,5 +80,14 @@ func InventoryRoutes(v1 *gin.RouterGroup, controller *controllers.Controller) {
 		inventoryRoute.PUT(":id", middleware.AuthMiddleware(admin), controller.UpdateInventory)
 		inventoryRoute.DELETE(":id", middleware.AuthMiddleware(admin), controller.DeleteInventory)
 		inventoryRoute.GET("", middleware.AuthMiddleware(admin), controller.ListInventory)
+	}
+}
+
+func StatisticsRoutes(v1 *gin.RouterGroup, controller *controllers.Controller) {
+	statsRoute := v1.Group("stats")
+	{
+		statsRoute.GET("customers", middleware.AuthMiddleware(admin), controller.GetCustomerStatistics)
+		statsRoute.GET("orders", middleware.AuthMiddleware(admin), controller.GetOrderStatistics)
+		statsRoute.GET("inventory", middleware.AuthMiddleware(admin), controller.GetInventoryStatistics)
 	}
 }

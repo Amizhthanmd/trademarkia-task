@@ -26,7 +26,7 @@ go mod tidy
    Update the `POSTGRES_DB_URL` in the `.env` file to match your PostgreSQL setup. Below is an example:
 
 ```bash
-POSTGRES_DB_URL=postgresql://postgres:your_password@127.0.0.1:5432/your_database
+POSTGRES_DB_URL=postgresql://postgres:your_password@127.0.0.1:5432/
 ```
 
 ### Running Database Migrations

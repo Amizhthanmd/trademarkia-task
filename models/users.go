@@ -11,7 +11,7 @@ type User struct {
 	Role      string `json:"role" gorm:"default:user"`
 
 	// One-to-Many (orders)
-	Orders    []Order   `json:"orders,omitempty" gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Orders    []Order   `json:"orders,omitempty" gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	CreatedAt time.Time `json:"created_at,omitempty" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updated_at,omitempty" gorm:"autoUpdateTime"`
 }
@@ -28,10 +28,10 @@ type Order struct {
 	Quantity    int     `json:"quantity"`
 
 	UserID string `json:"user_id,omitempty" gorm:"type:uuid"`
-	User   User   `json:"user,omitempty" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	User   User   `json:"user,omitempty" gorm:"foreignKey:UserID"`
 
 	// Many-to-Many (Products)
-	Products  []Product `gorm:"many2many:order_products;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Products  []Product `gorm:"many2many:order_products"`
 	ProductID string    `json:"product_id" gorm:"type:uuid"`
 
 	CreatedAt time.Time `json:"created_at,omitempty" gorm:"autoCreateTime"`

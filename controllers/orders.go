@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"order_inventory_management/models"
 	"strconv"
@@ -46,21 +47,13 @@ func (c *Controller) PlaceOrder(ctx *gin.Context) {
 		return
 	}
 
-	// product.Inventory.Quantity -= orderDetails.Quantity
-
-	// if err := c.inventoryService.UpdateInventoryQty(product.Inventory.Quantity, product.InventoryID); err != nil {
-	// 	c.logger.Error("Failed to update inventory quantity :", zap.Error(err))
-	// 	ctx.JSON(http.StatusInternalServerError, gin.H{"status": false, "message": "Failed to update inventory quantity"})
-	// 	return
-	// }
-
 	ctx.JSON(http.StatusOK, gin.H{"status": true, "message": "Order placed successfully", "data": orderDetails})
 }
 
 func (c *Controller) GetOrder(ctx *gin.Context) {
 	var orders []models.Order
-	id := ctx.Param("id")
-	if err := c.UserService.GetOrderById(&orders, id); err != nil {
+	id := ctx.Param("user_id")
+	if err := c.UserService.GetOrderByUserId(&orders, id); err != nil {
 		c.logger.Error("Failed to get order :", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, gin.H{"status": false, "message": "Failed to get order"})
 		return
@@ -78,6 +71,10 @@ func (c *Controller) GetOrder(ctx *gin.Context) {
 func (c *Controller) ListOrder(ctx *gin.Context) {
 	limit := ctx.DefaultQuery("limit", "10")
 	offset := ctx.DefaultQuery("offset", "0")
+	productID := ctx.DefaultQuery("product_id", "")
+	status := ctx.DefaultQuery("status", "")
+	sortBy := ctx.DefaultQuery("sort_by", "created_at")
+	sortOrder := ctx.DefaultQuery("sort_order", "desc")
 
 	limitInt, err := strconv.Atoi(limit)
 	if err != nil {
@@ -93,7 +90,22 @@ func (c *Controller) ListOrder(ctx *gin.Context) {
 	}
 
 	var orders []models.Order
-	if err := c.UserService.GetOrders(&orders, limitInt, offsetInt); err != nil {
+	query := c.UserService.DB
+
+	if productID != "" {
+		query = query.Where("product_id = ?", productID)
+	}
+	if status != "" {
+		query = query.Where("status = ?", status)
+	}
+
+	if sortOrder == "asc" {
+		query = query.Order(fmt.Sprintf("%s asc", sortBy))
+	} else {
+		query = query.Order(fmt.Sprintf("%s desc", sortBy))
+	}
+	
+	if err := c.UserService.GetOrders(&orders, query, limitInt, offsetInt); err != nil {
 		c.logger.Error("Failed to list orders :", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, gin.H{"status": false, "message": "Failed to list orders"})
 		return

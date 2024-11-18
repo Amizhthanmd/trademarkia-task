@@ -34,12 +34,17 @@ func (u *UserService) PlaceOrder(data *models.Order) error {
 	return u.DB.Create(&data).Error
 }
 
-func (u *UserService) GetOrderById(data *[]models.Order, id string) error {
+func (u *UserService) GetOrderByUserId(data *[]models.Order, id string) error {
 	u.logger.Info("Get order by id")
 	return u.DB.Find(&data, "user_id = ?", id).Error
 }
 
-func (u *UserService) GetOrders(data *[]models.Order, limit, offset int) error {
-	u.logger.Info("List orders")
-	return u.DB.Limit(limit).Offset(offset).Find(&data).Error
+func (u *UserService) GetOrders(data *[]models.Order, query *gorm.DB, limit, offset int) error {
+	u.logger.Info("List orders with filters")
+	query = query.Preload("User", func(db *gorm.DB) *gorm.DB {
+		return db.Select("users.id, users.first_name, users.last_name, users.email")
+	}).Preload("Products", func(db *gorm.DB) *gorm.DB {
+		return db.Select("products.id, products.name, products.price, products.description")
+	})
+	return query.Limit(limit).Offset(offset).Find(&data).Error
 }

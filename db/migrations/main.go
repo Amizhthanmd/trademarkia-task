@@ -26,63 +26,53 @@ func main() {
 
 	switch Option {
 	case 1:
-		postgresDb, err := gorm.Open(postgres.Open(postgresDbUrl), &gorm.Config{})
-		if err != nil {
-			log.Fatal("failed to connect to PostgreSQL server")
-		}
-		CheckAndCreateDatabase(postgresDb, database)
+		CreateDatabase(postgresDbUrl, database)
 	case 2:
-		dsn := fmt.Sprintf("%s%s", postgresDbUrl, database)
-		Db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-		if err != nil {
-			log.Fatal("failed to connect database")
-		}
-		if err := MigrateDatabase(Db).Migrate(); err != nil {
-			log.Fatal("Failed to migrate database")
-		}
-		log.Println("Database migrated successfully")
+		RunMigrations(postgresDbUrl, database)
 	case 3:
-		dsn := fmt.Sprintf("%s%s", postgresDbUrl, database)
-		Db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-		if err != nil {
-			log.Fatal("failed to connect database")
-		}
-		if err := createTriggerFunction(Db); err != nil {
-			log.Fatal("Failed to create trigger function")
-		}
-		if err := createTrigger(Db); err != nil {
-			log.Fatal("Failed to create trigger")
-		}
-		log.Println("Triggers created successfully")
+		RunTriggers(postgresDbUrl, database)
 	case 4:
-		postgresDb, err := gorm.Open(postgres.Open(postgresDbUrl), &gorm.Config{})
-		if err != nil {
-			log.Fatal("Failed to connect to PostgreSQL server")
-		}
-		CheckAndCreateDatabase(postgresDb, database)
-
-		// Run Migration
-		dsn := fmt.Sprintf("%s%s", postgresDbUrl, database)
-		Db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-		if err != nil {
-			log.Fatal("Failed to connect to database")
-		}
-		if err := MigrateDatabase(Db).Migrate(); err != nil {
-			log.Fatal("Failed to migrate database")
-		}
-		log.Println("Database migrated successfully")
-
-		// Create Triggers
-		if err := createTriggerFunction(Db); err != nil {
-			log.Fatal("Failed to create trigger function")
-		}
-		if err := createTrigger(Db); err != nil {
-			log.Fatal("Failed to create trigger")
-		}
-		log.Println("Triggers created successfully")
+		CreateDatabase(postgresDbUrl, database)
+		RunMigrations(postgresDbUrl, database)
+		RunTriggers(postgresDbUrl, database)
 	default:
 		log.Fatal("Enter the valid option.")
 	}
+}
+
+func CreateDatabase(postgresDbUrl string, database string) {
+	postgresDb, err := gorm.Open(postgres.Open(postgresDbUrl), &gorm.Config{})
+	if err != nil {
+		log.Fatal("failed to connect to PostgreSQL server")
+	}
+	CheckAndCreateDatabase(postgresDb, database)
+}
+
+func RunMigrations(postgresDbUrl string, database string) {
+	dsn := fmt.Sprintf("%s%s", postgresDbUrl, database)
+	Db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("failed to connect database")
+	}
+	if err := MigrateDatabase(Db).Migrate(); err != nil {
+		log.Fatal("Failed to migrate database")
+	}
+	log.Println("Database migrated successfully")
+}
+
+func RunTriggers(postgresDbUrl string, database string) {
+	dsn := fmt.Sprintf("%s%s", postgresDbUrl, database)
+	Db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("failed to connect database")
+	}
+	if err := createTriggerFunction(Db); err != nil {
+		log.Fatal("Failed to create trigger function")
+	}
+	if err := createTrigger(Db); err != nil {
+		log.Fatal("Failed to create trigger")
+	}
+	log.Println("Triggers created successfully")
 }
 
 func CheckAndCreateDatabase(initialDB *gorm.DB, dbName string) {
@@ -173,10 +163,6 @@ func createTriggerFunction(db *gorm.DB) error {
 		IF NEW.quantity <= 5 THEN
 			UPDATE products
 			SET price = price * 1.10
-			WHERE id = NEW.product_id;
-		ELSIF NEW.quantity > 5 THEN
-			UPDATE products
-			SET price = price * 0.90
 			WHERE id = NEW.product_id;
 		END IF;
 
